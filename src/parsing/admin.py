@@ -3,17 +3,37 @@ from django.urls import reverse
 from django.utils.html import format_html
 
 from .models import Hub, ArticleAuthor, Article
+from .forms import HubCreationForm, HubUpdateForm
 
 
 class HubAdmin(admin.ModelAdmin):
     model = Hub
-    list_display = ("title", "url_display", "parse_period", "id")
+    form = HubUpdateForm
+    add_form = HubCreationForm
+    list_display = (
+        "title", "url_display", "parsing_enabled_display", "last_parsetime_display", "id"
+    )
     search_fields = ("title", "url")
-    sortable_by = ("id", "title", "parse_period")
+    sortable_by = ("id", "title")
 
     @admin.display(description="URL")
     def url_display(self, obj):
         return format_html("<a href='{url}' target='_blank'>{url}</a>", url=obj.url)
+
+    @admin.display(description="Parsing Enabled", boolean=True)
+    def parsing_enabled_display(self, obj):
+        return obj.parse_task.enabled
+    
+    @admin.display(description="Last Parse Time")
+    def last_parsetime_display(self, obj):
+        return obj.parse_task.last_run_at
+    
+    def get_form(self, request, obj=None, **kwargs):
+        defaults = {}
+        if obj is None:
+            defaults['form'] = self.add_form
+        defaults.update(kwargs)
+        return super().get_form(request, obj, **defaults)
 
 class ArticleAuthorAdmin(admin.ModelAdmin):
     model = ArticleAuthor
