@@ -6,9 +6,10 @@ from django.dispatch import receiver
 class Hub(models.Model):
     title = models.CharField(max_length=150)
     url = models.URLField(unique=True)
-    parse_task = models.OneToOneField(PeriodicTask, on_delete=models.CASCADE)
+    parse_task = models.OneToOneField(PeriodicTask, on_delete=models.CASCADE, blank=True, null=True)
+    
     def __str__(self) -> str:
-        return self.title
+        return f"{self.title}(#{self.id})"
 
 @receiver(models.signals.post_delete, sender=Hub)
 def delete_hub_parse_task(sender, instance: Hub, **kwargs):
@@ -16,10 +17,10 @@ def delete_hub_parse_task(sender, instance: Hub, **kwargs):
 
 class ArticleAuthor(models.Model):
     username = models.CharField(max_length=150)
-    url = models.URLField()
+    url = models.URLField(unique=True)
 
     def __str__(self) -> str:
-        return self.username
+        return f"{self.username}(#{self.id})"
 
 class Article(models.Model):
     title = models.CharField(max_length=250)
@@ -30,5 +31,5 @@ class Article(models.Model):
     published_at = models.DateTimeField()
 
     def __str__(self) -> str:
-        return self.title
+        return f"{self.title}(#{self.id})"
 

@@ -1,3 +1,6 @@
+import json
+from datetime import datetime
+
 from django import forms
 from django.db.transaction import atomic
 from django_celery_beat.models import IntervalSchedule
@@ -24,17 +27,22 @@ class HubCreationForm(forms.ModelForm):
     @atomic
     def save(self, commit: bool = True) -> Hub:
         super().save(commit=False)
-        task = PeriodicTask.objects.create(
-            name=f"Parse {self.cleaned_data.get('url')}",
-            task="parsing.tasks.temp_task",
-            interval=self.cleaned_data.get("interval"),
-            enabled=self.cleaned_data.get("task_enabled")
-        )
+
         hub = Hub(
             title=self.cleaned_data.get("title"),
-            url=self.cleaned_data.get("url"),
-            parse_task=task
+            url=self.cleaned_data.get("url")
         )
+        hub.save()
+        
+        task = PeriodicTask.objects.create(
+            name=f"Parse {self.cleaned_data.get('url')}",
+            task="parsing.tasks.parse_hub_task",
+            interval=self.cleaned_data.get("interval"),
+            enabled=self.cleaned_data.get("task_enabled"),
+            kwargs=json.dumps({"hub_id": hub.id}),
+            start_time=datetime.utcnow()
+        )
+        hub.parse_task = task
 
         if commit:
             hub.save()
