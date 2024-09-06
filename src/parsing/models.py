@@ -13,7 +13,13 @@ class Hub(models.Model):
 
 @receiver(models.signals.post_delete, sender=Hub)
 def delete_hub_parse_task(sender, instance: Hub, **kwargs):
-    instance.parse_task.delete()
+    try:
+        parse_task = instance.parse_task
+    except PeriodicTask.DoesNotExist:
+        return
+
+    if parse_task is not None:
+        parse_task.delete()
 
 class ArticleAuthor(models.Model):
     username = models.CharField(max_length=150)

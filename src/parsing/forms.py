@@ -1,5 +1,5 @@
 import json
-from datetime import datetime
+from datetime import datetime, timezone
 
 from django import forms
 from django.db.transaction import atomic
@@ -40,7 +40,7 @@ class HubCreationForm(forms.ModelForm):
             interval=self.cleaned_data.get("interval"),
             enabled=self.cleaned_data.get("task_enabled"),
             kwargs=json.dumps({"hub_id": hub.id}),
-            start_time=datetime.utcnow()
+            start_time=datetime.now(tz=timezone.utc)
         )
         hub.parse_task = task
 
