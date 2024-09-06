@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+
+{% block content %}
+{% if page_obj|length == 0 %}
+    <div class="d-flex flex-column align-items-center mb-3 fs-3">
+        <span>We have no hubs registred right now! Come back later.</span>
+        <i class="fa fa-face-surprise fs-1"></i>
+    </div>
+{% else %}
+<ul class="w-100">
+    {% for hub in page_obj %}
+        <li class="card mt-4"></li>
+        <div class="card-body row align-items-center">
+            <div class="col-8">
+                <h5 class="card-title position-relative">{{hub.title}}</h5>
+                <h6 class="card-subtitle">
+                    <a class="text-decoration-none" target="_blank" href="{{hub.url}}">{{hub.url}}</a>
+                </h6>
+            </div>
+            <div class="col-4 d-flex flex-column">
+                <span title="Parsing period">
+                    <i class="fa fa-stopwatch"></i>
+                    {{hub.parse_task.interval}}
+                </span>
+                {% if hub.parse_task.last_run_at %}
+                    <span title="Last parsing">
+                        <i  class="fa fa-clock"></i>
+                        {{hub.parse_task.last_run_at|timesince}} ago
+                    </span>
+                {% endif %}
+                {% if hub.parse_task.total_run_count > 0 %}
+                    <span title="Times parsed">
+                        <i class="fa fa-gears"></i>
+                        {{hub.parse_task.total_run_count}}
+                    </span>
+                {% endif %}
+                <span title="Articles parsed">
+                    <i  class="fa fa-newspaper"></i>
+                    {{hub.article_set.count}}
+                </span>
+            </div>
+        </div>
+    {% endfor %}
+</ul>
+{% if page_obj.has_previous or page_obj.has_next %}
+    <nav>
+        <ul class="pagination">
+            {% if page_obj.has_previous %}
+            <li class="page-item"><a href="?page={{page_obj.previous_page_number}}" class="page-link">
+                <span class="fa fa-left-long"></span>
+            </a></li>
+            {% endif %}
+
+            <li class="page-item active"><span class="page-link" style="cursor: pointer;">{{page_obj.number}}</span></li>
+
+            {% if page_obj.has_next %}
+            <li class="page-item"><a href="?page={{page_obj.next_page_number}}" class="page-link">
+                <span class="fa fa-right-long"></span>
+            </a></li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+{% endif %}
+{% endblock %}

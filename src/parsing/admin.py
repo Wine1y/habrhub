@@ -50,6 +50,7 @@ class ArticleAdmin(admin.ModelAdmin):
     list_display = ("title", "url_display", "author_display", "hub_display", "published_at", "id")
     search_fields = ("title", "text", "url")
     sortable_by = ("id", "title", "published_at")
+    list_filter = ("hub",)
 
     @admin.display(description="URL")
     def url_display(self, obj):
