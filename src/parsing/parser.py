@@ -7,7 +7,7 @@ from aiohttp import ClientSession
 from bs4 import BeautifulSoup, Tag
 
 
-MAX_PARALLEL_REQUESTS = 1
+MAX_PARALLEL_REQUESTS = 3
 
 @dataclass
 class ParsedArticleAuthor:

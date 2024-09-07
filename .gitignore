@@ -1,4 +1,5 @@
 venv
+src/staticfiles
 *.pyc
 *.bat
 *.sqlite3
