@@ -2,6 +2,7 @@ import asyncio
 from typing import List
 from dataclasses import dataclass
 from datetime import datetime
+from urllib.parse import urljoin
 
 from aiohttp import ClientSession
 from bs4 import BeautifulSoup, Tag
@@ -25,15 +26,17 @@ class ParsedArticle:
 
 
 class HabrParser:
-    base_url: str = "https://habr.com"
+    base_url: str = "https://habr.com/"
     session: ClientSession
     request_semaphore: asyncio.Semaphore
 
     async def parse_hub_article_urls(self, hub_url: str) -> List[str]:
-        soup = await self._get_page_soup(f"{hub_url}/articles")
+        if not hub_url.endswith('/'):
+            hub_url = hub_url + '/'
+        soup = await self._get_page_soup(urljoin(hub_url, "articles"))
 
         return [
-            f"{self.base_url}{a.attrs['href']}"
+            urljoin(self.base_url, a.attrs['href'])
             for a in soup.select("div.tm-articles-list article a.tm-title__link")
             if "href" in a.attrs
         ]
@@ -46,7 +49,7 @@ class HabrParser:
 
         author = ParsedArticleAuthor(
             username=self._get_tag_text(author_tag),
-            url=f"{self.base_url}{author_tag.attrs.get('href')}"
+            url=urljoin(self.base_url, author_tag.attrs.get('href'))
         )
 
         return ParsedArticle(

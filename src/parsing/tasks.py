@@ -16,7 +16,6 @@ async def parse_hub(hub_url: str) -> List[ParsedArticle]:
 def parse_hub_task(hub_id: int):
     hub = Hub.objects.get(id=hub_id)
     parsed_articles = async_to_sync(parse_hub)(hub.url)
-
     authors = ArticleAuthor.objects.bulk_create(
         [
             ArticleAuthor(
